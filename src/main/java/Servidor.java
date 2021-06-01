@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 public class Servidor extends JFrame {
     private JLabel chat = new JLabel();
@@ -19,7 +18,6 @@ public class Servidor extends JFrame {
     HashMap clienteColl = new HashMap();
 
     public Servidor() {
-
         setTitle("Servidor");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setLocation(700, 250);

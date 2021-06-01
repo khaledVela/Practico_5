@@ -9,7 +9,6 @@ import java.net.Socket;
 public class Cliente extends JFrame {
     JPanel menu = new JPanel();
     JTextField usuario = new JTextField();
-    String cliente;
 
     public Cliente() {
         super("Cliente");
