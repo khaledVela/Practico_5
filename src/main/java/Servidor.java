@@ -88,25 +88,28 @@ public class Servidor extends JFrame {
     class MsgRead extends Thread {
         Socket s;
         String ID;
+
         MsgRead(Socket s, String ID) {
             this.s = s;
             this.ID = ID;
         }
+
         public void run() {
             while (!clienteColl.isEmpty()) {
                 try {
                     String i = new DataInputStream(s.getInputStream()).readUTF();
-                        Set k = clienteColl.keySet();
-                        Iterator itr = k.iterator();
-                        while (itr.hasNext()) {
-                            String key = (String) itr.next();
-                            if (!key.equalsIgnoreCase(ID)) {
-                                try {
-                                    new DataOutputStream(((Socket) clienteColl.get(key)).getOutputStream()).writeUTF("< " + ID + "A todos >" + i);
-                                } catch (Exception e) {
-                                }
+                    Set k = clienteColl.keySet();
+                    Iterator itr = k.iterator();
+                    while (itr.hasNext()) {
+                        String key = (String) itr.next();
+                        if (!key.equalsIgnoreCase(ID)) {
+                            try {
+                                new DataOutputStream(((Socket) clienteColl.get(key)).getOutputStream()).writeUTF("< " + ID + "A todos >" + i);
+                            } catch (Exception e) {
                             }
                         }
+                    }
+                    jPanelChat.append("< " + ID + "A todos >" + i + "\n");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -116,7 +119,6 @@ public class Servidor extends JFrame {
     }
 
     class PrepareClientList extends Thread {
-
         public void run() {
             try {
                 String ids = "";
@@ -138,7 +140,7 @@ public class Servidor extends JFrame {
                         new DataOutputStream(((Socket) clienteColl.get(key)).getOutputStream()).writeUTF(":;.,/=" + ids);
                     } catch (Exception e) {
                         clienteColl.remove(key);
-                        jPanelPaticipa.append(key + ":Salio");
+                        jPanelPaticipa.append(key + ":Salio" + "\n");
                     }
                 }
             } catch (Exception e) {

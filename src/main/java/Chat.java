@@ -11,23 +11,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
 public class Chat extends JFrame {
-    String texto;
     JPanel menu = new JPanel();
     private final static Logger logger = (Logger) LogManager.getRootLogger();
     JTextField usuario = new JTextField();
     JLabel foto = new JLabel(new ImageIcon("fon.png"));
     JTextArea txt_mensajes = new JTextArea();
 
-    String iD, clienteID = "";
+    String iD;
     DataInputStream din;
     DataOutputStream dout;
     DefaultListModel dlm;
 
-    public Chat(String a, Socket s){
-        iD=a;
-        setTitle("Chat "+iD);
+    public Chat(String a, Socket s) {
+        iD = a;
+        setTitle("Chat " + iD);
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setLocation(700,250);
+        setLocation(700, 250);
         setSize(400, 520);
         init();
         try {
@@ -39,7 +38,8 @@ public class Chat extends JFrame {
             e.printStackTrace();
         }
     }
-    public void init(){
+
+    public void init() {
         menu.setLayout(null);
         add(menu);
 
@@ -73,23 +73,21 @@ public class Chat extends JFrame {
         envio.setBackground(new Color(2, 19, 38));
         envio.setBorderPainted(false);
         envio.addActionListener(new ActionListener() {
-    // //
-        @Override
+            // //
+            @Override
             public void actionPerformed(ActionEvent arg0) {
                 logger.debug("envia");
                 try {
-                    String m = usuario.getText(), mm =m;
-                    String CI = clienteID;
-                    if(!clienteID.isEmpty()){
-                        m = "#4344554@@@@@67667@@"+CI+":" + mm;
-                        dout.writeUTF(m);
-                        usuario.setText("");
-                        txt_mensajes.append("<Mensaje a " +CI+ " >"+ mm + "\n");
-                    } else {
-                        dout.writeUTF(m);
-                        usuario.setText("");
-                        txt_mensajes.append("                                                                 <Tu a todos> " + mm + "\n");
+                    String m = usuario.getText(), mm = m;
+                    dout.writeUTF(m);
+                    usuario.setText("");
+                    int esp =  (100 - mm.length() * 2);
+                    String espacio = "";
+                    for (int a = 0; a < esp; a++) {
+                        espacio += " ";
                     }
+                    txt_mensajes.append(espacio + "<Tu a todos> " + mm + "\n");
+
                 } catch (Exception e) {
                 }
             }
@@ -97,18 +95,18 @@ public class Chat extends JFrame {
         foto.add(envio, null);
     }
 
-    class Read extends Thread{
-        public void run(){
-            while(true){
+    class Read extends Thread {
+        public void run() {
+            while (true) {
                 try {
                     String m = din.readUTF();
-                    if(m.contains(":;.,/=")){
+                    if (m.contains(":;.,/=")) {
                         m = m.substring(6);
                         dlm.clear();
                         StringTokenizer st = new StringTokenizer(m, ",");
-                        while(st.hasMoreTokens()){
+                        while (st.hasMoreTokens()) {
                             String u = st.nextToken();
-                            if(!iD.equals(u)){
+                            if (!iD.equals(u)) {
                                 dlm.addElement(u);
                             }
                         }
