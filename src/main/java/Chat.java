@@ -16,6 +16,7 @@ public class Chat extends JFrame {
     JTextField usuario = new JTextField();
     JLabel foto = new JLabel(new ImageIcon("fon.png"));
     JTextArea txt_mensajes = new JTextArea();
+    JScrollPane scrollPane1 = new JScrollPane();
 
     String iD;
     DataInputStream din;
@@ -47,12 +48,19 @@ public class Chat extends JFrame {
         foto.setVisible(true);
         menu.add(foto, null);
 
-        txt_mensajes.setBounds(0, 0, 490, 400);
         txt_mensajes.setEditable(false);
-        txt_mensajes.setOpaque(false);
+        txt_mensajes.setBounds(0, 0, 385, 450);
         txt_mensajes.setForeground(Color.white);
+        txt_mensajes.setOpaque(false);
         foto.add(txt_mensajes, null);
 
+       /* txt_mensajes.setEditable(false);
+        txt_mensajes.setForeground(Color.black);
+        scrollPane1.setBounds(0, 0, 385, 450);
+        scrollPane1.setViewportView(txt_mensajes);
+        scrollPane1.setVerticalScrollBarPolicy(scrollPane1.VERTICAL_SCROLLBAR_ALWAYS);
+        foto.add(scrollPane1, null);
+        */
         usuario.setBounds(50, 450, 270, 30);
         usuario.setForeground(Color.white);
         usuario.setBackground(new Color(2, 19, 38));
@@ -81,7 +89,7 @@ public class Chat extends JFrame {
                     String m = usuario.getText(), mm = m;
                     dout.writeUTF(m);
                     usuario.setText("");
-                    int esp =  (100 - mm.length() * 2);
+                    int esp =  (90 - mm.length() * 2);
                     String espacio = "";
                     for (int a = 0; a < esp; a++) {
                         espacio += " ";

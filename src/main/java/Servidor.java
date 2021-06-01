@@ -13,6 +13,7 @@ public class Servidor extends JFrame {
     private JLabel participantes = new JLabel();
     private JTextArea jPanelChat = new JTextArea();
     private JTextArea jPanelPaticipa = new JTextArea();
+
     int port = 0;
     ServerSocket ss;
     HashMap clienteColl = new HashMap();
@@ -107,7 +108,7 @@ public class Servidor extends JFrame {
                             }
                         }
                     }
-                    jPanelChat.append("< " + ID + "A todos >" + i + "\n");
+                    jPanelChat.append("< " + ID + " A todos >" + i + "\n");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

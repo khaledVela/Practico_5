@@ -59,7 +59,6 @@ public void conectar(){
         String id = usuario.getText();
 
         Socket s = new Socket("localhost", 2089);
-        DataInputStream din = new DataInputStream(s.getInputStream());
         DataOutputStream dout = new DataOutputStream(s.getOutputStream());
         dout.writeUTF(id);
         String i = new DataInputStream(s.getInputStream()).readUTF();
