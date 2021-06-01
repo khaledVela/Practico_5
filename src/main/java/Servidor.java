@@ -1,30 +1,44 @@
-import javax.naming.ldap.SortKey;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.awt.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.StringTokenizer;
 
-public class Servidor extends JFrame implements Runnable {
+public class Servidor extends JFrame {
     private JLabel chat = new JLabel();
     private JLabel participantes = new JLabel();
-    private JPanel jPanelChat = new JPanel();
-    private JPanel jPanelPaticipa = new JPanel();
+    private JTextArea jPanelChat = new JTextArea();
+    private JTextArea jPanelPaticipa = new JTextArea();
     int port = 0;
+    ServerSocket ss;
+    HashMap clienteColl = new HashMap();
 
     public Servidor() {
+
         setTitle("Servidor");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setLocation(700, 250);
         setLayout(null);
         setSize(545, 520);
         init();
+        try {
+            ss = new ServerSocket(2089);
+            new ClientAccept().start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void init() {
         jPanelPaticipa.setBackground(new java.awt.Color(0, 0, 0));
         jPanelPaticipa.setBounds(370, 50, 150, 400);
+        jPanelPaticipa.setEditable(false);
+        jPanelPaticipa.setForeground(Color.white);
 
         participantes.setFont(new java.awt.Font("Dialog", 0, 24));
         participantes.setText("Participa");
@@ -32,6 +46,8 @@ public class Servidor extends JFrame implements Runnable {
 
         jPanelChat.setBackground(new java.awt.Color(0, 0, 0));
         jPanelChat.setBounds(10, 50, 350, 400);
+        jPanelChat.setEditable(false);
+        jPanelChat.setForeground(Color.white);
 
         chat.setFont(new java.awt.Font("Dialog", 0, 24));
         chat.setText("Chat");
@@ -42,36 +58,93 @@ public class Servidor extends JFrame implements Runnable {
         add(participantes, null);
         add(chat, null);
 
-        JMenuBar bar = new JMenuBar();
-        JMenu mnu = new JMenu("Menu");
-        JMenuItem mi = new JMenuItem("Esperar conexión");
-        mi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                mnuArchivo_EsperarConexion();
-            }
-        });
-        Thread mihilo = new Thread(this);
-        mihilo.start();
-
-        mnu.add(mi);
-        bar.add(mnu);
-        setJMenuBar(bar);
     }
 
-    protected void mnuArchivo_EsperarConexion() {
-        String puertoString = JOptionPane.showInputDialog(this, "Colocar en qué puerto escuchará por favor:");
+    class ClientAccept extends Thread {
 
-        try {
-            port = Integer.parseInt(puertoString);
-            if (port <= 1024 || port > 65000) {
-                throw new Exception("Debe colocar un entero");
+        public void run() {
+            while (true) {
+                try {
+                    Socket s = ss.accept();
+                    String i = new DataInputStream(s.getInputStream()).readUTF();
+                    if (clienteColl.containsKey(i)) {
+                        DataOutputStream dout = new DataOutputStream(s.getOutputStream());
+                        dout.writeUTF("Ya estas registrado");
+
+                    } else {
+                        clienteColl.put(i, s);
+                        jPanelPaticipa.append(i + " Se unio\n");
+                        DataOutputStream dout = new DataOutputStream((s.getOutputStream()));
+                        dout.writeUTF("");
+                        new MsgRead(s, i).start();
+                        new PrepareClientList().start();
+                    }
+                } catch (Exception e) {
+                }
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Debe colocar un número entero positivo mayor a 1024");
-            return;
+        }
+    }
+
+    class MsgRead extends Thread {
+        Socket s;
+        String ID;
+        MsgRead(Socket s, String ID) {
+            this.s = s;
+            this.ID = ID;
+        }
+        public void run() {
+            while (!clienteColl.isEmpty()) {
+                try {
+                    String i = new DataInputStream(s.getInputStream()).readUTF();
+                        Set k = clienteColl.keySet();
+                        Iterator itr = k.iterator();
+                        while (itr.hasNext()) {
+                            String key = (String) itr.next();
+                            if (!key.equalsIgnoreCase(ID)) {
+                                try {
+                                    new DataOutputStream(((Socket) clienteColl.get(key)).getOutputStream()).writeUTF("< " + ID + "A todos >" + i);
+                                } catch (Exception e) {
+                                }
+                            }
+                        }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
+    }
+
+    class PrepareClientList extends Thread {
+
+        public void run() {
+            try {
+                String ids = "";
+                Set k = clienteColl.keySet();
+                Iterator itr = k.iterator();
+                while (itr.hasNext()) {
+                    String key = (String) itr.next();
+                    ids += key + ",";
+                }
+                if (ids.length() != 0) {
+                    ids = ids.substring(0, ids.length() - 1);
+                }
+
+                itr = k.iterator();
+
+                while (itr.hasNext()) {
+                    String key = (String) itr.next();
+                    try {
+                        new DataOutputStream(((Socket) clienteColl.get(key)).getOutputStream()).writeUTF(":;.,/=" + ids);
+                    } catch (Exception e) {
+                        clienteColl.remove(key);
+                        jPanelPaticipa.append(key + ":Salio");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
@@ -79,9 +152,4 @@ public class Servidor extends JFrame implements Runnable {
         Servidor serv = new Servidor();
         serv.setVisible(true);
     }
-
-    @Override
-    public void run() {
-
-        }
-    }
+}

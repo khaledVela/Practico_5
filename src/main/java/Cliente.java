@@ -2,9 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
 
 public class Cliente extends JFrame {
     JPanel menu = new JPanel();
+    JTextField usuario = new JTextField();
     String cliente;
 
     public Cliente() {
@@ -31,7 +35,6 @@ public class Cliente extends JFrame {
         persona.setBounds(230, 300, 140, 50);
         foto.add(persona, null);
 
-        JTextField usuario = new JTextField();
         usuario.setBounds(230, 350, 120, 25);
         usuario.setOpaque(false);
         usuario.setForeground(Color.white);
@@ -47,15 +50,33 @@ public class Cliente extends JFrame {
         next.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                cliente = usuario.getText();
-                setVisible(false);
-                Chat chat = new Chat(cliente);
-                chat.setVisible(true);
-
+                conectar();
             }
         });
 
     }
+public void conectar(){
+    try {
+        String id = usuario.getText();
+
+        Socket s = new Socket("localhost", 2089);
+        DataInputStream din = new DataInputStream(s.getInputStream());
+        DataOutputStream dout = new DataOutputStream(s.getOutputStream());
+        dout.writeUTF(id);
+        String i = new DataInputStream(s.getInputStream()).readUTF();
+        if (i.equals("Ya estas registrado")) {
+            JOptionPane.showMessageDialog(this, "YA ESTA REGISTRADO\n");
+        } else {
+            Chat chat = new Chat(id,s);
+            this.dispose();
+            chat.setVisible(true);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
 
     public static void main(String[] args) {
         Cliente client = new Cliente();
